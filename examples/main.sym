@@ -1,0 +1,15 @@
+ƒ fib(n) {
+    ¿ (n ≤ 1) ↵ n;
+    ↵ fib(n - 2) + fib(n - 1);
+}
+
+• result ← 0;
+• i ← 0;
+∞ {
+    ¿ (i > 20) Ɵ;
+
+    result ← fib(i);
+    ✉ result;
+
+    i ← i + 1;
+}
