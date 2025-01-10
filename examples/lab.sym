@@ -1,0 +1,16 @@
+• a ← 1;
+• b ← 2;
+• c ← 3;
+
+✉ a + b × c ÷ 9;
+
+¿ (b ≠ c) {
+    ✉ ●;
+}
+
+¿ (!○) {
+    ✉ "Hey, that's not true! Or is it?";
+}
+
+• d ← "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";
+✉ d;

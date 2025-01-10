@@ -45,7 +45,7 @@ const (
 
 	AND    = "&"
 	ASSIGN = "←"
-	BREAK  = "θƟ"
+	BREAK  = "Ɵ"
 	FALSE  = "○"
 	FUNC   = "ƒ"
 	IF     = "¿"
