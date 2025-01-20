@@ -1,18 +1,18 @@
 package sym
 
 type Token struct {
-	tokenType string
-	lexeme    string
-	literal   interface{}
-	line      int
+	TokenType string
+	Lexeme    string
+	Literal   interface{}
+	Line      int
 }
 
 func NewToken(tokenType string, lexeme string, literal interface{}, line int) Token {
 	return Token{
-		tokenType: tokenType,
-		lexeme:    lexeme,
-		literal:   literal,
-		line:      line,
+		TokenType: tokenType,
+		Lexeme:    lexeme,
+		Literal:   literal,
+		Line:      line,
 	}
 }
 

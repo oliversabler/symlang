@@ -92,9 +92,9 @@ func (p *Parser) primary() Expr {
 	} else if p.match(NIL) {
 		return NewLiteralExpr(nil)
 	} else if p.match(NUMBER, STRING) {
-		return NewLiteralExpr(p.previous().literal)
+		return NewLiteralExpr(p.previous().Literal)
 	} else {
-		panic(fmt.Sprintf("Expected expression at line %d.", p.peek().line))
+		panic(fmt.Sprintf("Expected expression at line %d.", p.peek().Line))
 	}
 }
 
@@ -109,14 +109,14 @@ func (p *Parser) check(tokenType string) bool {
 	if p.isAtEnd() {
 		return false
 	}
-	return p.peek().tokenType == tokenType
+	return p.peek().TokenType == tokenType
 }
 
 func (p *Parser) consume(tokenType string, message string) Token {
 	if p.check(tokenType) {
 		return p.advance()
 	}
-	panic(fmt.Sprintf("%s at line %d.\n", message, p.peek().line))
+	panic(fmt.Sprintf("%s at line %d.\n", message, p.peek().Line))
 }
 
 func (p *Parser) match(tokenTypes ...string) bool {
@@ -130,7 +130,7 @@ func (p *Parser) match(tokenTypes ...string) bool {
 }
 
 func (p *Parser) isAtEnd() bool {
-	return p.peek().tokenType == EOF
+	return p.peek().TokenType == EOF
 }
 
 func (p *Parser) peek() Token {
@@ -144,10 +144,10 @@ func (p *Parser) previous() Token {
 func (p *Parser) synchronize() {
 	p.advance()
 	for !p.isAtEnd() {
-		if p.previous().tokenType == SEMICOLON {
+		if p.previous().TokenType == SEMICOLON {
 			return
 		}
-		switch p.peek().tokenType {
+		switch p.peek().TokenType {
 		case FUNC:
 		case IF:
 		case LOOP:

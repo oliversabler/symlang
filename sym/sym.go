@@ -6,10 +6,14 @@ import (
 )
 
 type Runtime struct {
+	interpreter *Interpreter
 }
 
 func NewRuntime() Runtime {
-	return Runtime{}
+	interpreter := NewInterpreter()
+	return Runtime{
+		interpreter: interpreter,
+	}
 }
 
 func (r *Runtime) ExecFile(path string) {
@@ -33,6 +37,10 @@ func (r *Runtime) exec(source string) {
 	for _, statement := range statements {
 		r.debugStatement(fmt.Sprintf("%v", statement))
 	}
+
+	result := r.interpreter.interpret(statements)
+	fmt.Printf("Result: %v\n", result)
+
 }
 
 func (r *Runtime) debugStatement(output string) {
@@ -56,6 +64,7 @@ func (r *Runtime) debugStatement(output string) {
 			fmt.Print(string(c))
 		}
 	}
+	fmt.Println()
 }
 
 func (r *Runtime) indent(indentation int) {
