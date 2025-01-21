@@ -46,12 +46,12 @@ func (r *Runtime) exec(source string) {
 func (r *Runtime) debugStatement(output string) {
 	indentation := 0
 	for i, c := range output {
-		if c == '{' {
+		if c == '{' || c == '[' {
 			fmt.Print(string(c))
 			fmt.Println()
 			indentation += 2
 			r.indent(indentation)
-		} else if output[i] == '}' {
+		} else if output[i] == '}' || output[i] == ']' {
 			fmt.Println()
 			indentation -= 2
 			r.indent(indentation)
