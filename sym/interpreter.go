@@ -2,12 +2,6 @@ package sym
 
 import "fmt"
 
-type ActionType = string
-
-type LoopAction struct {
-	actionType ActionType
-}
-
 type Interpreter struct {
 	environment  *Environment
 	currentValue interface{}
@@ -138,6 +132,12 @@ func (i *Interpreter) visitLoopStmt(statement *LoopStmt) interface{} {
 		}
 	}
 	return nil
+}
+
+type ActionType = string
+
+type LoopAction struct {
+	actionType ActionType
 }
 
 func (i *Interpreter) loop(body Stmt) (actionType ActionType) {
