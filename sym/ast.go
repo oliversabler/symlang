@@ -7,7 +7,10 @@ type Visitor interface {
 	visitLiteralExpr(expr *LiteralExpr) interface{}
 	visitUnaryExpr(expr *UnaryExpr) interface{}
 
+	visitBlockStmt(stmt *BlockStmt) interface{}
+	visitBreakStmt(stmt *BreakStmt) interface{}
 	visitExpressionStmt(stmt *ExpressionStmt) interface{}
+	visitLoopStmt(stmt *LoopStmt) interface{}
 }
 
 /*
@@ -85,6 +88,40 @@ type Stmt interface {
 	Accept(visitor Visitor) interface{}
 }
 
+type BlockStmt struct {
+	Statements []Stmt
+}
+
+func NewBlockStmt(statements []Stmt) *BlockStmt {
+	return &BlockStmt{
+		Statements: statements,
+	}
+}
+
+func (bs *BlockStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitBlockStmt(bs)
+}
+
+func (bs *BlockStmt) String() string {
+	return fmt.Sprintf("BlockStmt {Statements: %v}", bs.Statements)
+}
+
+type BreakStmt struct {
+	Token Token
+}
+
+func NewBreakStmt(token Token) *BreakStmt {
+	return &BreakStmt{}
+}
+
+func (bs *BreakStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitBreakStmt(bs)
+}
+
+func (bs *BreakStmt) String() string {
+	return fmt.Sprintf("BreakStmt {Token: %v}", bs.Token)
+}
+
 type ExpressionStmt struct {
 	Expression Expr
 }
@@ -101,4 +138,22 @@ func (es *ExpressionStmt) Accept(visitor Visitor) interface{} {
 
 func (es *ExpressionStmt) String() string {
 	return fmt.Sprintf("ExpressionStmt {Expression: %v}", es.Expression)
+}
+
+type LoopStmt struct {
+	Body Stmt
+}
+
+func NewLoopStmt(body Stmt) *LoopStmt {
+	return &LoopStmt{
+		Body: body,
+	}
+}
+
+func (ls *LoopStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitLoopStmt(ls)
+}
+
+func (ls *LoopStmt) String() string {
+	return fmt.Sprintf("LoopStmt {Body: %v}", ls.Body)
 }

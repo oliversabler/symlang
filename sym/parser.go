@@ -14,15 +14,58 @@ func NewParser(tokens []Token) *Parser {
 }
 
 func (p *Parser) parse() []Stmt {
-	var stmts []Stmt
+	var statements []Stmt
 	for !p.isAtEnd() {
-		stmts = append(stmts, p.statement())
+		statements = append(statements, p.statement())
 	}
-	return stmts
+	return statements
+}
+
+func (p *Parser) declaration() (declaration Stmt) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			p.synchronize()
+			declaration = nil
+			return
+		}
+	}()
+
+	return p.statement()
 }
 
 func (p *Parser) statement() Stmt {
-	return p.expressionStatement()
+	if p.match(LOOP) {
+		return p.loopStatement()
+	} else if p.match(LEFTBRACE) {
+		block := p.block()
+		return NewBlockStmt(block)
+	} else if p.match(BREAK) {
+		return p.breakStatement()
+	} else {
+		return p.expressionStatement()
+	}
+}
+
+func (p *Parser) breakStatement() Stmt {
+	keyword := p.previous()
+	p.consume(SEMICOLON, fmt.Sprintf("Expect ';' after %s.", BREAK))
+	return NewBreakStmt(keyword)
+}
+
+func (p *Parser) loopStatement() Stmt {
+	body := p.statement()
+	return NewLoopStmt(body)
+}
+
+func (p *Parser) block() []Stmt {
+	var statements []Stmt
+	for !p.check(RIGHTBRACE) && !p.isAtEnd() {
+		declaration := p.declaration()
+		statements = append(statements, declaration)
+	}
+	p.consume(RIGHTBRACE, "Expect '}' after block.")
+	return statements
 }
 
 func (p *Parser) expressionStatement() Stmt {

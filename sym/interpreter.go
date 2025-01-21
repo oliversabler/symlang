@@ -2,7 +2,14 @@ package sym
 
 import "fmt"
 
+type ActionType = string
+
+type LoopAction struct {
+	actionType ActionType
+}
+
 type Interpreter struct {
+	environment  *Environment
 	currentValue interface{}
 }
 
@@ -33,6 +40,15 @@ func (i *Interpreter) evaluate(expression Expr) interface{} {
 
 func (i *Interpreter) execute(statement Stmt) interface{} {
 	return statement.Accept(i)
+}
+
+func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) {
+	previous := i.environment
+	i.environment = environment
+	for _, statement := range statements {
+		i.execute(statement)
+	}
+	i.environment = previous
 }
 
 func (i *Interpreter) visitBinaryExpr(expression *BinaryExpr) interface{} {
@@ -97,12 +113,48 @@ func (i *Interpreter) visitUnaryExpr(expression *UnaryExpr) interface{} {
 	}
 }
 
+func (i *Interpreter) visitBlockStmt(statement *BlockStmt) interface{} {
+	blockEnvironment := NewEnvironmentWithEnclosing(i.environment)
+	i.executeBlock(statement.Statements, blockEnvironment)
+	return nil
+}
+
+func (i *Interpreter) visitBreakStmt(statement *BreakStmt) interface{} {
+	panic(LoopAction{"BREAK"})
+}
+
 func (i *Interpreter) visitExpressionStmt(statement *ExpressionStmt) interface{} {
 	value := i.evaluate(statement.Expression)
 
 	i.currentValue = value
 
 	return value
+}
+
+func (i *Interpreter) visitLoopStmt(statement *LoopStmt) interface{} {
+	for {
+		if i.loop(statement.Body) == "BREAK" {
+			break
+		}
+	}
+	return nil
+}
+
+func (i *Interpreter) loop(body Stmt) (actionType ActionType) {
+	defer func() {
+		if r := recover(); r != nil {
+			switch r := r.(type) {
+			case LoopAction:
+				actionType = r.actionType
+				break
+			default:
+				panic(r)
+			}
+		}
+	}()
+
+	i.execute(body)
+	return ""
 }
 
 func (i *Interpreter) isEqual(left interface{}, right interface{}) bool {
