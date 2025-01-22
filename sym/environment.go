@@ -24,7 +24,6 @@ func (e *Environment) ancestor(distance int) *Environment {
 	for i := 0; i < distance; i++ {
 		environment = environment.enclosing
 	}
-
 	return environment
 }
 

@@ -21,26 +21,30 @@ func (r *Runtime) ExecFile(path string) {
 	if err != nil {
 		panic(err)
 	}
-
 	r.exec(string(input))
 }
 
 func (r *Runtime) exec(source string) {
 	lexer := NewLexer(source)
 	tokens := lexer.scanTokens()
-	//	for _, token := range tokens {
-	//		fmt.Printf("%#v\n", token)
-	//	}
-
+	r.debugTokens(tokens)
 	parser := NewParser(tokens)
 	statements := parser.parse()
+	r.debugStatements(statements)
+	result := r.interpreter.interpret(statements)
+	fmt.Printf("Result: %v\n", result)
+}
+
+func (r *Runtime) debugTokens(tokens []Token) {
+	for _, token := range tokens {
+		fmt.Printf("%#v\n", token)
+	}
+}
+
+func (r *Runtime) debugStatements(statements []Stmt) {
 	for _, statement := range statements {
 		r.debugStatement(fmt.Sprintf("%v", statement))
 	}
-
-	result := r.interpreter.interpret(statements)
-	fmt.Printf("Result: %v\n", result)
-
 }
 
 func (r *Runtime) debugStatement(output string) {

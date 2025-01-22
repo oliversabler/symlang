@@ -30,7 +30,6 @@ func (p *Parser) declaration() (declaration Stmt) {
 			return
 		}
 	}()
-
 	return p.statement()
 }
 
