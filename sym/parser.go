@@ -35,13 +35,15 @@ func (p *Parser) declaration() (declaration Stmt) {
 }
 
 func (p *Parser) statement() Stmt {
-	if p.match(LOOP) {
-		return p.loopStatement()
-	} else if p.match(LEFTBRACE) {
+	if p.match(LEFTBRACE) {
 		block := p.block()
 		return NewBlockStmt(block)
 	} else if p.match(BREAK) {
 		return p.breakStatement()
+	} else if p.match(LOOP) {
+		return p.loopStatement()
+	} else if p.match(PRINT) {
+		return p.printStatement()
 	} else {
 		return p.expressionStatement()
 	}
@@ -56,6 +58,12 @@ func (p *Parser) breakStatement() Stmt {
 func (p *Parser) loopStatement() Stmt {
 	body := p.statement()
 	return NewLoopStmt(body)
+}
+
+func (p *Parser) printStatement() Stmt {
+	expression := p.expression()
+	p.consume(SEMICOLON, "Expect ';' after expression.")
+	return NewPrintStmt(expression)
 }
 
 func (p *Parser) block() []Stmt {

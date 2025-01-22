@@ -157,6 +157,13 @@ func (i *Interpreter) loop(body Stmt) (actionType ActionType) {
 	return ""
 }
 
+func (i *Interpreter) visitPrintStmt(statement *PrintStmt) interface{} {
+	value := i.evaluate(statement.Expression)
+	fmt.Printf("%v\n", value)
+	i.currentValue = value
+	return value
+}
+
 func (i *Interpreter) isEqual(left interface{}, right interface{}) bool {
 	if left == nil && right == nil {
 		return true

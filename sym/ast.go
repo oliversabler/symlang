@@ -11,6 +11,7 @@ type Visitor interface {
 	visitBreakStmt(stmt *BreakStmt) interface{}
 	visitExpressionStmt(stmt *ExpressionStmt) interface{}
 	visitLoopStmt(stmt *LoopStmt) interface{}
+	visitPrintStmt(stmt *PrintStmt) interface{}
 }
 
 /*
@@ -156,4 +157,22 @@ func (ls *LoopStmt) Accept(visitor Visitor) interface{} {
 
 func (ls *LoopStmt) String() string {
 	return fmt.Sprintf("LoopStmt {Body: %v}", ls.Body)
+}
+
+type PrintStmt struct {
+	Expression Expr
+}
+
+func NewPrintStmt(expression Expr) *PrintStmt {
+	return &PrintStmt{
+		Expression: expression,
+	}
+}
+
+func (ps *PrintStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitPrintStmt(ps)
+}
+
+func (ps *PrintStmt) String() string {
+	return fmt.Sprintf("PrintStmt {Expression: %v}", ps.Expression)
 }
