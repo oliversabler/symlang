@@ -115,6 +115,14 @@ func (i *Interpreter) visitExpressionStmt(statement *ExpressionStmt) interface{}
 	return value
 }
 
+func (i *Interpreter) visitIfStmt(statement *IfStmt) interface{} {
+	condition := i.evaluate(statement.Condition)
+	if i.isTruthy(condition) {
+		return i.execute(statement.Then)
+	}
+	return nil
+}
+
 func (i *Interpreter) visitLoopStmt(statement *LoopStmt) interface{} {
 	for {
 		if i.loop(statement.Body) == "BREAK" {

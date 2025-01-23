@@ -39,6 +39,8 @@ func (p *Parser) statement() Stmt {
 		return NewBlockStmt(block)
 	} else if p.match(BREAK) {
 		return p.breakStatement()
+	} else if p.match(IF) {
+		return p.ifStatement()
 	} else if p.match(LOOP) {
 		return p.loopStatement()
 	} else if p.match(PRINT) {
@@ -50,8 +52,16 @@ func (p *Parser) statement() Stmt {
 
 func (p *Parser) breakStatement() Stmt {
 	keyword := p.previous()
-	p.consume(SEMICOLON, fmt.Sprintf("Expect ';' after %s.", BREAK))
+	p.consume(SEMICOLON, fmt.Sprintf("Expect ';' after '%s.'", BREAK))
 	return NewBreakStmt(keyword)
+}
+
+func (p *Parser) ifStatement() Stmt {
+	p.consume(LEFTPARENTHESIS, fmt.Sprintf("Expect '(' after '%s'", IF))
+	condition := p.expression()
+	p.consume(RIGHTPARENTHESIS, fmt.Sprintf("Expect ')' after '%s' condition", IF))
+	then := p.statement()
+	return NewIfStmt(condition, then)
 }
 
 func (p *Parser) loopStatement() Stmt {

@@ -10,6 +10,7 @@ type Visitor interface {
 	visitBlockStmt(stmt *BlockStmt) interface{}
 	visitBreakStmt(stmt *BreakStmt) interface{}
 	visitExpressionStmt(stmt *ExpressionStmt) interface{}
+	visitIfStmt(stmt *IfStmt) interface{}
 	visitLoopStmt(stmt *LoopStmt) interface{}
 	visitPrintStmt(stmt *PrintStmt) interface{}
 }
@@ -139,6 +140,26 @@ func (es *ExpressionStmt) Accept(visitor Visitor) interface{} {
 
 func (es *ExpressionStmt) String() string {
 	return fmt.Sprintf("ExpressionStmt {Expression: %v}", es.Expression)
+}
+
+type IfStmt struct {
+	Condition Expr
+	Then      Stmt
+}
+
+func NewIfStmt(condition Expr, then Stmt) *IfStmt {
+	return &IfStmt{
+		Condition: condition,
+		Then:      then,
+	}
+}
+
+func (is *IfStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitIfStmt(is)
+}
+
+func (is *IfStmt) String() string {
+	return fmt.Sprintf("IfStmt {Condition: %v, Then: %v}", is.Condition, is.Then)
 }
 
 type LoopStmt struct {
