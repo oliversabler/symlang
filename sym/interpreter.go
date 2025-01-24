@@ -3,13 +3,19 @@ package sym
 import "fmt"
 
 type Interpreter struct {
-	environment  *Environment
 	currentValue interface{}
+	environment  *Environment
+	globals      *Environment
+	locals       map[Expr]int
 }
 
 func NewInterpreter() *Interpreter {
+	globals := NewEnvironment()
 	return &Interpreter{
 		currentValue: nil,
+		environment:  globals,
+		globals:      globals,
+		locals:       make(map[Expr]int),
 	}
 }
 
@@ -34,6 +40,10 @@ func (i *Interpreter) execute(statement Stmt) interface{} {
 	return statement.Accept(i)
 }
 
+func (i Interpreter) resolve(expression Expr, depth int) {
+	i.locals[expression] = depth
+}
+
 func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) {
 	previous := i.environment
 	i.environment = environment
@@ -41,6 +51,17 @@ func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) 
 		i.execute(statement)
 	}
 	i.environment = previous
+}
+
+func (i *Interpreter) visitAssignExpr(expression *AssignExpr) interface{} {
+	value := i.evaluate(expression.Value)
+	distance, ok := i.locals[expression]
+	if ok {
+		i.environment.assignAt(distance, expression.Name.Lexeme, value)
+	} else {
+		i.globals.assign(expression.Name.Lexeme, value)
+	}
+	return value
 }
 
 func (i *Interpreter) visitBinaryExpr(expression *BinaryExpr) interface{} {
@@ -97,6 +118,10 @@ func (i *Interpreter) visitUnaryExpr(expression *UnaryExpr) interface{} {
 	default:
 		panic("You done messed up.")
 	}
+}
+
+func (i *Interpreter) visitVarExpr(expression *VarExpr) interface{} {
+	return i.variableLookup(expression.Name, expression)
 }
 
 func (i *Interpreter) visitBlockStmt(statement *BlockStmt) interface{} {
@@ -156,8 +181,16 @@ func (i *Interpreter) loop(body Stmt) (actionType ActionType) {
 
 func (i *Interpreter) visitPrintStmt(statement *PrintStmt) interface{} {
 	value := i.evaluate(statement.Expression)
-	fmt.Printf("%v\n", value)
 	i.currentValue = value
+	return value
+}
+
+func (i *Interpreter) visitVarStmt(statement *VarStmt) interface{} {
+	var value interface{}
+	if statement.Initializer != nil {
+		value = i.evaluate(statement.Initializer)
+	}
+	i.environment.define(statement.Name.Lexeme, value)
 	return value
 }
 
@@ -180,4 +213,17 @@ func (i *Interpreter) isTruthy(object interface{}) bool {
 		return isBool
 	}
 	return true
+}
+
+func (i *Interpreter) variableLookup(name Token, expression Expr) interface{} {
+	distance, ok := i.locals[expression]
+	if ok {
+		return i.environment.getAt(distance, name.Lexeme)
+	} else {
+		value, ok := i.globals.get(name.Lexeme)
+		if !ok {
+			panic(fmt.Sprintf("Undefined variable '%s'.", name.Lexeme))
+		}
+		return value
+	}
 }

@@ -16,7 +16,7 @@ func NewParser(tokens []Token) *Parser {
 func (p *Parser) parse() []Stmt {
 	var statements []Stmt
 	for !p.isAtEnd() {
-		statements = append(statements, p.statement())
+		statements = append(statements, p.declaration())
 	}
 	return statements
 }
@@ -30,7 +30,21 @@ func (p *Parser) declaration() (declaration Stmt) {
 			return
 		}
 	}()
-	return p.statement()
+	if p.match(VAR) {
+		return p.varDeclaration()
+	} else {
+		return p.statement()
+	}
+}
+
+func (p *Parser) varDeclaration() Stmt {
+	name := p.consume(IDENTIFIER, "Expect variable name.")
+	var initializer Expr
+	if p.match(ASSIGN) {
+		initializer = p.expression()
+	}
+	p.consume(SEMICOLON, "Expect ';' after variable declaration.")
+	return NewVarStmt(name, initializer)
 }
 
 func (p *Parser) statement() Stmt {
@@ -92,7 +106,21 @@ func (p *Parser) expressionStatement() Stmt {
 }
 
 func (p *Parser) expression() Expr {
-	return p.equality()
+	return p.assignment()
+}
+
+func (p *Parser) assignment() Expr {
+	expr := p.equality()
+	if p.match(ASSIGN) {
+		assign := p.previous()
+		value := p.assignment()
+		varExpr, ok := expr.(*VarExpr)
+		if ok {
+			return NewAssignExpr(varExpr.Name, value)
+		}
+		panic(fmt.Sprintf("Invalid assignment target '%v'.", assign))
+	}
+	return expr
 }
 
 func (p *Parser) equality() Expr {
@@ -153,6 +181,8 @@ func (p *Parser) primary() Expr {
 		return NewLiteralExpr(nil)
 	} else if p.match(NUMBER, STRING) {
 		return NewLiteralExpr(p.previous().Literal)
+	} else if p.match(IDENTIFIER) {
+		return NewVarExpr(p.previous())
 	} else {
 		panic(fmt.Sprintf("Expected expression at line %d.", p.peek().Line))
 	}

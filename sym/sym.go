@@ -31,6 +31,8 @@ func (r *Runtime) exec(source string) {
 	parser := NewParser(tokens)
 	statements := parser.parse()
 	r.debugStatements(statements)
+	resolver := NewResolver(r.interpreter)
+	resolver.resolveStatements(statements)
 	result := r.interpreter.interpret(statements)
 	fmt.Printf("Result: %v\n", result)
 }

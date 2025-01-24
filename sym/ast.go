@@ -3,9 +3,11 @@ package sym
 import "fmt"
 
 type Visitor interface {
+	visitAssignExpr(expr *AssignExpr) interface{}
 	visitBinaryExpr(expr *BinaryExpr) interface{}
 	visitLiteralExpr(expr *LiteralExpr) interface{}
 	visitUnaryExpr(expr *UnaryExpr) interface{}
+	visitVarExpr(expr *VarExpr) interface{}
 
 	visitBlockStmt(stmt *BlockStmt) interface{}
 	visitBreakStmt(stmt *BreakStmt) interface{}
@@ -13,6 +15,7 @@ type Visitor interface {
 	visitIfStmt(stmt *IfStmt) interface{}
 	visitLoopStmt(stmt *LoopStmt) interface{}
 	visitPrintStmt(stmt *PrintStmt) interface{}
+	visitVarStmt(stmt *VarStmt) interface{}
 }
 
 /*
@@ -20,6 +23,26 @@ type Visitor interface {
 */
 type Expr interface {
 	Accept(visitor Visitor) interface{}
+}
+
+type AssignExpr struct {
+	Name  Token
+	Value Expr
+}
+
+func NewAssignExpr(name Token, value Expr) *AssignExpr {
+	return &AssignExpr{
+		Name:  name,
+		Value: value,
+	}
+}
+
+func (ae *AssignExpr) Accept(visitor Visitor) interface{} {
+	return visitor.visitAssignExpr(ae)
+}
+
+func (ae *AssignExpr) String() string {
+	return fmt.Sprintf("AssignExpr {Name %v,Value: %v}", ae.Name, ae.Value)
 }
 
 type BinaryExpr struct {
@@ -81,6 +104,24 @@ func (ue *UnaryExpr) Accept(visitor Visitor) interface{} {
 
 func (ue *UnaryExpr) String() string {
 	return fmt.Sprintf("UnaryExpr {Operator: %v,Right: %v}", ue.Operator, ue.Right)
+}
+
+type VarExpr struct {
+	Name Token
+}
+
+func NewVarExpr(name Token) *VarExpr {
+	return &VarExpr{
+		Name: name,
+	}
+}
+
+func (ve *VarExpr) Accept(visitor Visitor) interface{} {
+	return visitor.visitVarExpr(ve)
+}
+
+func (ve *VarExpr) String() string {
+	return fmt.Sprintf("VarExpr {Name: %v}", ve.Name)
 }
 
 /*
@@ -159,7 +200,7 @@ func (is *IfStmt) Accept(visitor Visitor) interface{} {
 }
 
 func (is *IfStmt) String() string {
-	return fmt.Sprintf("IfStmt {Condition: %v, Then: %v}", is.Condition, is.Then)
+	return fmt.Sprintf("IfStmt {Condition: %v,Then: %v}", is.Condition, is.Then)
 }
 
 type LoopStmt struct {
@@ -196,4 +237,24 @@ func (ps *PrintStmt) Accept(visitor Visitor) interface{} {
 
 func (ps *PrintStmt) String() string {
 	return fmt.Sprintf("PrintStmt {Expression: %v}", ps.Expression)
+}
+
+type VarStmt struct {
+	Name        Token
+	Initializer Expr
+}
+
+func NewVarStmt(name Token, initializer Expr) *VarStmt {
+	return &VarStmt{
+		Name:        name,
+		Initializer: initializer,
+	}
+}
+
+func (vs *VarStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitVarStmt(vs)
+}
+
+func (vs *VarStmt) String() string {
+	return fmt.Sprintf("VarStmt {Name: %v,Initializer: %v}", vs.Name, vs.Initializer)
 }
