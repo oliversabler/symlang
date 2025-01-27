@@ -27,29 +27,31 @@ If you want to give it a spin, try to run a file in the examples directory, for 
 `go run main.go examples/lab.sym`.
 
 ## Symbols
--: minus
-+: plus
-÷: divide
-×: multiply
+```
+-     // 2 - 1; (subtract)
++     // 2 + 3; (add)
+÷     // 9 ÷ 3; (divide)
+×     // 3 × 3; (multiply)
 
-!: not
-=: equal
-≠: not equal
->: greater
-≥: greater equal
-<: less
-≤: less equal
+!     // !●;            (not)
+=     // "abc" = "abc"; (equal)
+≠     // "abc" ≠ "cba"; (not equal)
+>     // 3 > 1;         (greater)
+≥     // 3 ≥ 3;         (greater equal)
+<     // 1 < 3;         (less)
+≤     // 3 ≤ 3;         (less equal)
 
-&: and
-←: assign
-Ɵ: break
-○: false
-ƒ: function
-¿: if
-∞: loop
-ø: nil
-|: or
-✉: print
-↵: return
-●: true
-•: variable
+&     // ¿ (1 + 1 = 2 & ●) { ... }                 (and)
+←     // existingVariable ← "new value";           (assign)
+Ɵ     // ∞ { Ɵ; }                                  (break)
+○     // false
+ƒ     // ƒ functionName() { ... }                  (function)
+¿     // ¿ (1 + 1 = 2) { ... }                     (if)
+∞     // ∞ { ... }                                 (loop)
+ø     // nil
+|     // ¿ (1 + 1 = 2 | ●) { ... }                 (or)
+✉     // ✉ "print me";                             (print)
+↵     // ƒ functionName() { ↵ "string value"; }    (return)
+●     // true
+•     // • myVariable;                             (variable)
+```
