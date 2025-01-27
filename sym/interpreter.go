@@ -100,6 +100,24 @@ func (i *Interpreter) visitBinaryExpr(expression *BinaryExpr) interface{} {
 	panic("You done messed up.")
 }
 
+func (i *Interpreter) visitCallExpr(expression *CallExpr) interface{} {
+	callee := i.evaluate(expression.Callee)
+	var arguments []interface{}
+	for _, argument := range expression.Arguments {
+		argument := i.evaluate(argument)
+		arguments = append(arguments, argument)
+	}
+	function, ok := callee.(SymCallable)
+	if !ok {
+		panic("Can only call functions.")
+	}
+	if len(arguments) != function.Arity() {
+		panic(fmt.Sprintf("Expected %d arguments but got %d.", function.Arity(), len(arguments)))
+	}
+	value := function.Call(i, arguments)
+	return value
+}
+
 func (i *Interpreter) visitLiteralExpr(expression *LiteralExpr) interface{} {
 	return expression.Value
 }
@@ -154,6 +172,12 @@ func (i *Interpreter) visitExpressionStmt(statement *ExpressionStmt) interface{}
 	return value
 }
 
+func (i *Interpreter) visitFunctionStmt(statement *FunctionStmt) interface{} {
+	function := NewSymFunction(statement, i.environment)
+	i.environment.define(statement.Name.Lexeme, function)
+	return nil
+}
+
 func (i *Interpreter) visitIfStmt(statement *IfStmt) interface{} {
 	condition := i.evaluate(statement.Condition)
 	if i.isTruthy(condition) {
@@ -195,8 +219,14 @@ func (i *Interpreter) loop(body Stmt) (actionType ActionType) {
 
 func (i *Interpreter) visitPrintStmt(statement *PrintStmt) interface{} {
 	value := i.evaluate(statement.Expression)
+	fmt.Printf("%v\n", value)
 	i.currentValue = value
 	return value
+}
+
+func (i *Interpreter) visitReturnStmt(statement *ReturnStmt) interface{} {
+	value := i.evaluate(statement.Value)
+	panic(NewSymReturn(value))
 }
 
 func (i *Interpreter) visitVarStmt(statement *VarStmt) interface{} {

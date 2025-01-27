@@ -6,10 +6,11 @@
 
 ¿ (b ≠ c) {
     ✉ ●;
+    ✉ ○;
 }
 
-¿ (!○) {
-    ✉ "Hey, that's not true! Or is it?";
+¿ (!●) {
+    ✉ "Hey, that's not true!";
 }
 
 • d ← "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";

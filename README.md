@@ -1,9 +1,8 @@
 # Symlang
 This is a tiny programming language called The Symbol Language (Symlang for short).
 
-Disclaimer: Programming in this language will be tedious, and slow.
+Disclaimer: Programming in this language will be tedious, and slow to type in (a lot of copy paste).
 
-This is obviously a work in progress but to give you a taste of what to expect in the future,
 I present to you recursive implementation of the Fibonacci sequence in Symlang below.
 ```
 ƒ fib(n) {
@@ -14,7 +13,7 @@ I present to you recursive implementation of the Fibonacci sequence in Symlang b
 • result ← 0;
 • i ← 0;
 ∞ {
-    ¿ (i > 20) Ɵ;
+    ¿ (i ≥ 20) Ɵ;
 
     result ← fib(i);
     ✉ result;
@@ -22,3 +21,35 @@ I present to you recursive implementation of the Fibonacci sequence in Symlang b
     i ← i + 1;
 }
 ```
+
+
+If you want to give it a spin, try to run a file in the examples directory, for example
+`go run main.go examples/lab.sym`.
+
+## Symbols
+-: minus
++: plus
+÷: divide
+×: multiply
+
+!: not
+=: equal
+≠: not equal
+>: greater
+≥: greater equal
+<: less
+≤: less equal
+
+&: and
+←: assign
+Ɵ: break
+○: false
+ƒ: function
+¿: if
+∞: loop
+ø: nil
+|: or
+✉: print
+↵: return
+●: true
+•: variable

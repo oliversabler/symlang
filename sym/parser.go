@@ -27,23 +27,44 @@ func (p *Parser) declaration() (declaration Stmt) {
 		if err != nil {
 			p.synchronize()
 			declaration = nil
-			return
+			panic(err)
 		}
 	}()
-	if p.match(VAR) {
+	if p.match(FUNC) {
+		return p.function()
+	} else if p.match(VAR) {
 		return p.varDeclaration()
 	} else {
 		return p.statement()
 	}
 }
 
+func (p *Parser) function() Stmt {
+	name := p.consume(IDENTIFIER, "Expect function name")
+	p.consume(LEFTPARENTHESIS, "Expect '(' after function name")
+	var parameters []Token
+	if !p.check(RIGHTPARENTHESIS) {
+		for {
+			parameter := p.consume(IDENTIFIER, "Expect parameter name")
+			parameters = append(parameters, parameter)
+			if !p.match(COMMA) {
+				break
+			}
+		}
+	}
+	p.consume(RIGHTPARENTHESIS, "Expect ')' after parameters")
+	p.consume(LEFTBRACE, "Expect '{' before function body")
+	body := p.block()
+	return NewFunctionStmt(name, parameters, body)
+}
+
 func (p *Parser) varDeclaration() Stmt {
-	name := p.consume(IDENTIFIER, "Expect variable name.")
+	name := p.consume(IDENTIFIER, "Expect variable name")
 	var initializer Expr
 	if p.match(ASSIGN) {
 		initializer = p.expression()
 	}
-	p.consume(SEMICOLON, "Expect ';' after variable declaration.")
+	p.consume(SEMICOLON, "Expect ';' after variable declaration")
 	return NewVarStmt(name, initializer)
 }
 
@@ -59,6 +80,8 @@ func (p *Parser) statement() Stmt {
 		return p.loopStatement()
 	} else if p.match(PRINT) {
 		return p.printStatement()
+	} else if p.match(RETURN) {
+		return p.returnStatement()
 	} else {
 		return p.expressionStatement()
 	}
@@ -66,7 +89,7 @@ func (p *Parser) statement() Stmt {
 
 func (p *Parser) breakStatement() Stmt {
 	keyword := p.previous()
-	p.consume(SEMICOLON, fmt.Sprintf("Expect ';' after '%s.'", BREAK))
+	p.consume(SEMICOLON, fmt.Sprintf("Expect ';' after '%s'", BREAK))
 	return NewBreakStmt(keyword)
 }
 
@@ -85,8 +108,18 @@ func (p *Parser) loopStatement() Stmt {
 
 func (p *Parser) printStatement() Stmt {
 	expression := p.expression()
-	p.consume(SEMICOLON, "Expect ';' after expression.")
+	p.consume(SEMICOLON, "Expect ';' after expression")
 	return NewPrintStmt(expression)
+}
+
+func (p *Parser) returnStatement() Stmt {
+	keyword := p.previous()
+	var value Expr
+	if !p.check(SEMICOLON) {
+		value = p.expression()
+	}
+	p.consume(SEMICOLON, "Expect ';' after return value")
+	return NewReturnStmt(keyword, value)
 }
 
 func (p *Parser) block() []Stmt {
@@ -95,13 +128,13 @@ func (p *Parser) block() []Stmt {
 		declaration := p.declaration()
 		statements = append(statements, declaration)
 	}
-	p.consume(RIGHTBRACE, "Expect '}' after block.")
+	p.consume(RIGHTBRACE, "Expect '}' after block")
 	return statements
 }
 
 func (p *Parser) expressionStatement() Stmt {
 	expr := p.expression()
-	p.consume(SEMICOLON, "Expect ';' after expression.")
+	p.consume(SEMICOLON, "Expect ';' after expression")
 	return NewExpressionStmt(expr)
 }
 
@@ -118,7 +151,7 @@ func (p *Parser) assignment() Expr {
 		if ok {
 			return NewAssignExpr(varExpr.Name, value)
 		}
-		panic(fmt.Sprintf("Invalid assignment target '%v'.", assign))
+		panic(fmt.Sprintf("Invalid assignment target '%v'", assign))
 	}
 	return expr
 }
@@ -189,7 +222,34 @@ func (p *Parser) unary() Expr {
 		right := p.unary()
 		return NewUnaryExpr(operator, right)
 	}
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() Expr {
+	expr := p.primary()
+	for {
+		if p.match(LEFTPARENTHESIS) {
+			expr = p.finishCall(expr)
+		} else {
+			break
+		}
+	}
+	return expr
+}
+
+func (p *Parser) finishCall(callee Expr) Expr {
+	var arguments []Expr
+	if !p.check(RIGHTPARENTHESIS) {
+		for {
+			expr := p.expression()
+			arguments = append(arguments, expr)
+			if !p.match(COMMA) {
+				break
+			}
+		}
+	}
+	parenthesis := p.consume(RIGHTPARENTHESIS, "Expect ')' after arguments")
+	return NewCallExpr(callee, parenthesis, arguments)
 }
 
 func (p *Parser) primary() Expr {

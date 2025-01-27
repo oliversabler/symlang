@@ -6,10 +6,12 @@
 • result ← 0;
 • i ← 0;
 ∞ {
-    ¿ (i > 20) Ɵ;
+    ¿ (i ≥ 20) Ɵ;
 
     result ← fib(i);
     ✉ result;
 
     i ← i + 1;
 }
+
+result;

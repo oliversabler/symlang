@@ -3,6 +3,12 @@
 • result ← 100;
 ✉ result;
 
+ƒ sending() {
+    ✉ "letter!";
+}
+
+sending();
+
 ∞ {
     11 + 10;
     ✉ "hoho";

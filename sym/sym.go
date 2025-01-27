@@ -27,10 +27,10 @@ func (r *Runtime) ExecFile(path string) {
 func (r *Runtime) exec(source string) {
 	lexer := NewLexer(source)
 	tokens := lexer.scanTokens()
-	r.debugTokens(tokens)
+	//	r.debugTokens(tokens)
 	parser := NewParser(tokens)
 	statements := parser.parse()
-	r.debugStatements(statements)
+	//	r.debugStatements(statements)
 	resolver := NewResolver(r.interpreter)
 	resolver.resolveStatements(statements)
 	result := r.interpreter.interpret(statements)

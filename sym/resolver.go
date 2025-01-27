@@ -34,6 +34,16 @@ func (r *Resolver) resolveExpression(expression Expr) {
 	expression.Accept(r)
 }
 
+func (r *Resolver) resolveFunction(function *FunctionStmt) {
+	r.beginScope()
+	for _, param := range function.Params {
+		r.declare(param)
+		r.define(param)
+	}
+	r.resolveStatements(function.Body)
+	r.endScope()
+}
+
 func (r *Resolver) resolveLocal(expression Expr, name Token) {
 	for i := len(r.scopes) - 1; i >= 0; i-- {
 		_, ok := r.scopes[i][name.Lexeme]
@@ -82,6 +92,14 @@ func (r *Resolver) visitBinaryExpr(expression *BinaryExpr) interface{} {
 	return nil
 }
 
+func (r *Resolver) visitCallExpr(expression *CallExpr) interface{} {
+	r.resolveExpression(expression.Callee)
+	for _, argument := range expression.Arguments {
+		r.resolveExpression(argument)
+	}
+	return nil
+}
+
 func (r *Resolver) visitLiteralExpr(expression *LiteralExpr) interface{} {
 	return nil
 }
@@ -124,6 +142,13 @@ func (r *Resolver) visitExpressionStmt(statement *ExpressionStmt) interface{} {
 	return nil
 }
 
+func (r *Resolver) visitFunctionStmt(statement *FunctionStmt) interface{} {
+	r.declare(statement.Name)
+	r.define(statement.Name)
+	r.resolveFunction(statement)
+	return nil
+}
+
 func (r *Resolver) visitIfStmt(statement *IfStmt) interface{} {
 	r.resolveExpression(statement.Condition)
 	r.resolveStatement(statement.Then)
@@ -137,6 +162,13 @@ func (r *Resolver) visitLoopStmt(statement *LoopStmt) interface{} {
 
 func (r *Resolver) visitPrintStmt(statement *PrintStmt) interface{} {
 	r.resolveExpression(statement.Expression)
+	return nil
+}
+
+func (r *Resolver) visitReturnStmt(statement *ReturnStmt) interface{} {
+	if statement.Value != nil {
+		r.resolveExpression(statement.Value)
+	}
 	return nil
 }
 

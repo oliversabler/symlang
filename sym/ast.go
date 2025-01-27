@@ -5,6 +5,7 @@ import "fmt"
 type Visitor interface {
 	visitAssignExpr(expr *AssignExpr) interface{}
 	visitBinaryExpr(expr *BinaryExpr) interface{}
+	visitCallExpr(expr *CallExpr) interface{}
 	visitLiteralExpr(expr *LiteralExpr) interface{}
 	visitLogicalExpr(expr *LogicalExpr) interface{}
 	visitUnaryExpr(expr *UnaryExpr) interface{}
@@ -13,9 +14,11 @@ type Visitor interface {
 	visitBlockStmt(stmt *BlockStmt) interface{}
 	visitBreakStmt(stmt *BreakStmt) interface{}
 	visitExpressionStmt(stmt *ExpressionStmt) interface{}
+	visitFunctionStmt(stmt *FunctionStmt) interface{}
 	visitIfStmt(stmt *IfStmt) interface{}
 	visitLoopStmt(stmt *LoopStmt) interface{}
 	visitPrintStmt(stmt *PrintStmt) interface{}
+	visitReturnStmt(stmt *ReturnStmt) interface{}
 	visitVarStmt(stmt *VarStmt) interface{}
 }
 
@@ -67,6 +70,29 @@ func (be *BinaryExpr) Accept(visitor Visitor) interface{} {
 func (be *BinaryExpr) String() string {
 	return fmt.Sprintf("BinaryExpr {Left: %v,Operator: %v,Right: %v}",
 		be.Left, be.Operator, be.Right)
+}
+
+type CallExpr struct {
+	Callee      Expr
+	Parenthesis Token
+	Arguments   []Expr
+}
+
+func NewCallExpr(callee Expr, parenthesis Token, arguments []Expr) *CallExpr {
+	return &CallExpr{
+		Callee:      callee,
+		Parenthesis: parenthesis,
+		Arguments:   arguments,
+	}
+}
+
+func (ce *CallExpr) Accept(visitor Visitor) interface{} {
+	return visitor.visitCallExpr(ce)
+}
+
+func (ce *CallExpr) String() string {
+	return fmt.Sprintf("CallExpr {Callee:%v,Parenthesis: %v,Arguments: %v}",
+		ce.Callee, ce.Parenthesis, ce.Arguments)
 }
 
 type LiteralExpr struct {
@@ -207,6 +233,28 @@ func (es *ExpressionStmt) String() string {
 	return fmt.Sprintf("ExpressionStmt {Expression: %v}", es.Expression)
 }
 
+type FunctionStmt struct {
+	Name   Token
+	Params []Token
+	Body   []Stmt
+}
+
+func NewFunctionStmt(name Token, params []Token, body []Stmt) *FunctionStmt {
+	return &FunctionStmt{
+		Name:   name,
+		Params: params,
+		Body:   body,
+	}
+}
+
+func (fs *FunctionStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitFunctionStmt(fs)
+}
+
+func (fs *FunctionStmt) String() string {
+	return fmt.Sprintf("FunctionStmt {Name: %v,Params: %v,Body: %v}", fs.Name, fs.Params, fs.Body)
+}
+
 type IfStmt struct {
 	Condition Expr
 	Then      Stmt
@@ -261,6 +309,26 @@ func (ps *PrintStmt) Accept(visitor Visitor) interface{} {
 
 func (ps *PrintStmt) String() string {
 	return fmt.Sprintf("PrintStmt {Expression: %v}", ps.Expression)
+}
+
+type ReturnStmt struct {
+	Keyword Token
+	Value   Expr
+}
+
+func NewReturnStmt(keyword Token, value Expr) *ReturnStmt {
+	return &ReturnStmt{
+		Keyword: keyword,
+		Value:   value,
+	}
+}
+
+func (rs *ReturnStmt) Accept(visitor Visitor) interface{} {
+	return visitor.visitReturnStmt(rs)
+}
+
+func (rs *ReturnStmt) String() string {
+	return fmt.Sprintf("ReturnStmt {Keyword: %v,Value: %v}", rs.Keyword, rs.Value)
 }
 
 type VarStmt struct {
