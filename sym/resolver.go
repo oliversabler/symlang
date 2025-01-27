@@ -86,6 +86,12 @@ func (r *Resolver) visitLiteralExpr(expression *LiteralExpr) interface{} {
 	return nil
 }
 
+func (r *Resolver) visitLogicalExpr(expression *LogicalExpr) interface{} {
+	r.resolveExpression(expression.Left)
+	r.resolveExpression(expression.Right)
+	return nil
+}
+
 func (r *Resolver) visitUnaryExpr(expression *UnaryExpr) interface{} {
 	r.resolveExpression(expression.Right)
 	return nil

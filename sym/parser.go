@@ -110,15 +110,35 @@ func (p *Parser) expression() Expr {
 }
 
 func (p *Parser) assignment() Expr {
-	expr := p.equality()
+	expr := p.or()
 	if p.match(ASSIGN) {
 		assign := p.previous()
-		value := p.assignment()
+		value := p.or()
 		varExpr, ok := expr.(*VarExpr)
 		if ok {
 			return NewAssignExpr(varExpr.Name, value)
 		}
 		panic(fmt.Sprintf("Invalid assignment target '%v'.", assign))
+	}
+	return expr
+}
+
+func (p *Parser) or() Expr {
+	expr := p.and()
+	for p.match(OR) {
+		operator := p.previous()
+		right := p.and()
+		expr = NewLogicalExpr(expr, operator, right)
+	}
+	return expr
+}
+
+func (p *Parser) and() Expr {
+	expr := p.equality()
+	for p.match(AND) {
+		operator := p.previous()
+		right := p.equality()
+		expr = NewLogicalExpr(expr, operator, right)
 	}
 	return expr
 }

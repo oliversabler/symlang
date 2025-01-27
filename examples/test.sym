@@ -11,3 +11,7 @@
 
 ¿ (10 > 1) { ✉ "print me"; }
 ¿ (10 < 1) { ✉ "don't print me"; }
+¿ (● | ○) { ✉ "print me"; }
+¿ (10 < 1 | ○) { ✉ "don't print me"; }
+¿ (10 > 1 & 1 < 10) { ✉ "print me"; }
+¿ (10 < 1 & 1 > 10) { ✉ "don't print me"; }

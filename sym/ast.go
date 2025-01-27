@@ -6,6 +6,7 @@ type Visitor interface {
 	visitAssignExpr(expr *AssignExpr) interface{}
 	visitBinaryExpr(expr *BinaryExpr) interface{}
 	visitLiteralExpr(expr *LiteralExpr) interface{}
+	visitLogicalExpr(expr *LogicalExpr) interface{}
 	visitUnaryExpr(expr *UnaryExpr) interface{}
 	visitVarExpr(expr *VarExpr) interface{}
 
@@ -84,6 +85,29 @@ func (le *LiteralExpr) Accept(visitor Visitor) interface{} {
 
 func (le *LiteralExpr) String() string {
 	return fmt.Sprintf("LiteralExpr {Value: %v}", le.Value)
+}
+
+type LogicalExpr struct {
+	Left     Expr
+	Operator Token
+	Right    Expr
+}
+
+func NewLogicalExpr(left Expr, operator Token, right Expr) *LogicalExpr {
+	return &LogicalExpr{
+		Left:     left,
+		Operator: operator,
+		Right:    right,
+	}
+}
+
+func (le *LogicalExpr) Accept(visitor Visitor) interface{} {
+	return visitor.visitLogicalExpr(le)
+}
+
+func (le *LogicalExpr) String() string {
+	return fmt.Sprintf("LogicalExpr {Left: %v,Operator: %v,Right:%v}",
+		le.Left, le.Operator, le.Right)
 }
 
 type UnaryExpr struct {

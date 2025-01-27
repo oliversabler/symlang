@@ -104,6 +104,20 @@ func (i *Interpreter) visitLiteralExpr(expression *LiteralExpr) interface{} {
 	return expression.Value
 }
 
+func (i *Interpreter) visitLogicalExpr(expression *LogicalExpr) interface{} {
+	left := i.evaluate(expression.Left)
+	if expression.Operator.TokenType == OR {
+		if i.isTruthy(left) {
+			return left
+		}
+	} else {
+		if !i.isTruthy(left) {
+			return left
+		}
+	}
+	return i.evaluate(expression.Right)
+}
+
 func (i *Interpreter) visitUnaryExpr(expression *UnaryExpr) interface{} {
 	right := i.evaluate(expression.Right)
 	switch expression.Operator.TokenType {
