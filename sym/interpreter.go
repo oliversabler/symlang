@@ -72,6 +72,21 @@ func (i *Interpreter) visitBinaryExpr(expression *BinaryExpr) interface{} {
 		return !i.isEqual(left, right)
 	case EQUAL:
 		return i.isEqual(left, right)
+	case PLUS:
+		switch t := left.(type) {
+		case float64:
+			rightValue, rightOk := right.(float64)
+			if rightOk {
+				return t + rightValue
+			}
+		case string:
+			rightValue, rightOk := right.(string)
+			if rightOk {
+				return t + rightValue
+			}
+		default:
+			panic(fmt.Sprintf("Operands must be two numbers or two strings, got %v and %v.", left, right))
+		}
 	default:
 		leftValue, leftOk := left.(float64)
 		rightValue, rightOk := right.(float64)
@@ -81,8 +96,6 @@ func (i *Interpreter) visitBinaryExpr(expression *BinaryExpr) interface{} {
 		switch expression.Operator.TokenType {
 		case MINUS:
 			return leftValue - rightValue
-		case PLUS:
-			return leftValue + rightValue
 		case DIVIDE:
 			return leftValue / rightValue
 		case MULTIPLY:

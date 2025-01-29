@@ -15,3 +15,10 @@
 
 • d ← "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";
 ✉ d;
+
+• name;
+• message;
+
+name ← "Laffe";
+message ← "Hello, " + name + "!";
+✉ message;
